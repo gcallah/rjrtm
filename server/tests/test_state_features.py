@@ -31,3 +31,34 @@ def test_delete_state_endpoint_calls_delete(client, state_data):
         resp = client.delete(f"/states/{state_data['code']}")
         mock_delete.assert_called_once_with(state_data['code'])
         assert resp.status_code in (200, 204, 404)
+
+#test for GET /states/<code>
+def test_get_state_by_code_success(client, state_data, monkeypatch):
+    expected = {'code': state_data['code'], 'name': state_data['name']}
+
+    def fake_read(code):
+        assert code == state_data['code']
+        return expected
+
+    monkeypatch.setattr(ds, 'read_state_by_code', fake_read)
+    resp = client.get(f"/states/{state_data['code']}")
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body.get('code') == expected['code']
+    assert body.get('name') == expected['name']
+
+# Additional test for GET /states/<code> when state not found
+def test_get_state_by_code_not_found(client, monkeypatch):
+
+    def fake_read(_):
+        return None
+
+    monkeypatch.setattr(ds, 'read_state_by_code', fake_read)
+    resp = client.get('/states/NOPE')
+    assert resp.status_code == 404
+    body = resp.get_json()
+    assert 'error' in body
+''' TODO:
+- Add more tests for other endpoints and edge cases as needed
+- Also figure out what changes that can be made to improve coverage and overall project.
+'''

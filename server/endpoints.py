@@ -86,12 +86,12 @@ class States(Resource):
 @api.route('/states/<string:code>')
 
 class StateByCode(Resource):
-    @api.marshal_with(state_model)
     def get(self, code):
         """Return a specific state by code."""
         state = ds.read_state_by_code(code)
         if state:
-            return state, 200
+            # Marshal only the successful response to the state model
+            return api.marshal(state, state_model), 200
         return {'error': 'State not found'}, 404
 
     @api.expect(state_model)
