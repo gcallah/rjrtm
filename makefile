@@ -26,3 +26,13 @@ dev_env: FORCE
 
 docs: FORCE
 	cd $(API_DIR); make docs
+
+.PHONY: demo_cities
+demo_cities:
+	@echo "Running Cities demo against $${API_URL:-http://localhost:5000} ..."
+	@bash example.sh demo_cities
+
+.PHONY: test_cities
+test_cities:
+	@echo "Running Cities tests..."
+	@pytest -q -k cities || pytest -k cities
